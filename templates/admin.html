@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block content %}
+<h1>Admin</h1><div class="stats"><div><b>{{ users|length }}</b>Users</div><div><b>₹{{ paid }}</b>Approved revenue</div><div><b>{{ orders|selectattr('status','equalto','submitted')|list|length }}</b>To verify</div></div>
+<h2>Payments</h2><div class="scroll"><table><tr><th>#</th><th>User</th><th>Plan</th><th>₹</th><th>UTR</th><th>Status</th><th></th></tr>
+{% for o in orders %}<tr><td>{{ o.id }}</td><td>{{ o.user.name }}<br><small>{{ o.user.email }}</small></td><td>{{ PLANS[o.plan][0] }}</td><td>{{ o.amount }}</td><td>{{ o.utr or '-' }}</td><td>{{ o.status }}</td><td>
+{% if o.status=='submitted' %}<form method="post" action="/admin/order/{{ o.id }}/approve"><button class="btn sm">Approve</button></form>{% endif %}
+{% if o.status in ['submitted','pending'] %}<form method="post" action="/admin/order/{{ o.id }}/reject"><button class="btn sm ghost">Reject</button></form>{% endif %}</td></tr>{% endfor %}</table></div>
+<h2>Users</h2><div class="scroll"><table><tr><th>Name</th><th>Email</th><th>Premium until</th><th></th></tr>
+{% for u in users %}<tr><td>{{ u.name }}{{ ' (admin)' if u.is_admin }}</td><td>{{ u.email }}</td><td>{{ u.premium_until.strftime('%d %b %Y') if u.premium_until else '-' }}</td><td>
+<form method="post" action="/admin/user/{{ u.id }}/grant"><input name="days" value="30" size="3"><button class="btn sm">Add days</button></form>
+<form method="post" action="/admin/user/{{ u.id }}/revoke"><button class="btn sm ghost">Revoke</button></form></td></tr>{% endfor %}</table></div>
+<h2>Jobs</h2><form class="filters" method="post" action="/admin/job/add"><input name="title" placeholder="Title" required><input name="company" placeholder="Company" required><input name="location" placeholder="Location">
+<select name="level"><option>Fresher</option><option>Experienced</option></select><input name="salary" placeholder="₹ per month" inputmode="numeric"><input name="source" placeholder="Source site"><input name="url" placeholder="Apply URL" required><button class="btn">Add job</button></form>
+<form method="post" action="/admin/sync"><button class="btn ghost">Sync Ashby jobs (Snowflake)</button></form>
+<div class="scroll"><table>{% for j in jobs %}<tr><td>{{ j.title }}{{ ' (demo)' if j.sample }}</td><td>{{ j.company }}</td><td>{{ j.source }}</td><td><form method="post" action="/admin/job/{{ j.id }}/delete"><button class="btn sm ghost">Delete</button></form></td></tr>{% endfor %}</table></div>
+<h2>Reviews</h2><div class="scroll"><table>{% for r in reviews %}<tr><td>{{ r.name }}</td><td>{{ r.text }}</td><td>{{ 'Live' if r.approved else 'Pending' }}</td><td>
+{% if not r.approved %}<form method="post" action="/admin/review/{{ r.id }}/approve"><button class="btn sm">Approve</button></form>{% endif %}<form method="post" action="/admin/review/{{ r.id }}/delete"><button class="btn sm ghost">Delete</button></form></td></tr>{% endfor %}</table></div>
+{% endblock %}

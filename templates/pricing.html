@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.premium-page {
+  padding: 35px 12px;
+  text-align: center;
+}
+.premium-title {
+  font-size: clamp(30px, 5vw, 48px);
+  font-weight: 800;
+  background: linear-gradient(90deg, #a78bfa, #22d3ee, #34d399);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.premium-subtitle { color: #aab7d0; margin: 12px 0 28px; }
+.premium-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 20px;
+  margin: 28px auto;
+  max-width: 1100px;
+  text-align: left;
+}
+.premium-card {
+  padding: 25px;
+  border: 1px solid #475569;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #202d48, #101827);
+  transition: transform .25s, border-color .25s;
+}
+.premium-card:hover {
+  transform: translateY(-7px);
+  border-color: #22d3ee;
+}
+.premium-card.featured {
+  border: 2px solid #22d3ee;
+  box-shadow: 0 0 25px #22d3ee20;
+}
+.premium-price { font-size: 34px; font-weight: 800; margin: 16px 0; }
+.premium-features { line-height: 2.2; color: #d1d9e8; padding-left: 18px; }
+.premium-btn {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px;
+  width: 100%;
+  color: #071522;
+  background: linear-gradient(90deg, #67e8f9, #6ee7b7);
+  font-weight: 800;
+  cursor: pointer;
+}
+.premium-note { color: #aab7d0; font-size: 13px; margin-top: 25px; }
+</style>
+
+<section class="premium-page">
+  <h1 class="premium-title">Upgrade to HireHub Premium</h1>
+  <p class="premium-subtitle">
+    Unlock direct application links and make your job search simpler.
+  </p>
+
+  <div class="premium-grid">
+    {% for k, (n, p, d) in PLANS.items() %}
+    <article class="premium-card {{ 'featured' if k == '3m' else '' }}">
+      {% if k == '3m' %}
+        <p>⭐ RECOMMENDED</p>
+      {% endif %}
+      <h2>{{ n }}</h2>
+      <div class="premium-price">₹{{ p }}</div>
+      <p>Approximately ₹{{ (p / d)|round(1) }} per day</p>
+
+      <ul class="premium-features">
+        <li>Direct apply links</li>
+        <li>Access to job listings</li>
+        <li>Simple premium activation</li>
+      </ul>
+
+      {% if me %}
+      <form method="post" action="{{ url_for('buy', plan=k) }}">
+        <button class="premium-btn" type="submit">Choose {{ n }}</button>
+      </form>
+      {% else %}
+      <a class="premium-btn" href="{{ url_for('login', next='/pricing') }}">
+        Log in to continue
+      </a>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+
+  <p class="premium-note">
+    Payment must be verified before Premium access is activated.
+    Each pending order has an 8-minute payment window.
+  </p>
+</section>
+
+{% endblock %}

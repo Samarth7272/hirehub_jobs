@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.pay-page {
+  --cyan: #22d3ee;
+  --purple: #a855f7;
+  --muted: #a9b8dc;
+  max-width: 1000px;
+  margin: 30px auto;
+  color: #f8faff;
+  animation: appear .7s ease both;
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pay-page * { box-sizing: border-box; }
+
+.pay-hero {
+  text-align: center;
+  padding: 24px 12px 30px;
+}
+
+.pay-hero .eyebrow {
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.pay-hero h1 {
+  font-size: clamp(30px, 5vw, 48px);
+  margin: 12px 0;
+  line-height: 1.15;
+  background: linear-gradient(90deg, #fff, #67e8f9, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pay-hero p { color: var(--muted); }
+
+.pay-card {
+  padding: clamp(18px, 4vw, 36px);
+  border: 1px solid rgba(103, 232, 249, .45);
+  border-radius: 25px;
+  background:
+    radial-gradient(ellipse at top right, #31216b 0%, transparent 45%),
+    linear-gradient(145deg, #101d49, #080e27 75%);
+  box-shadow: 0 20px 65px rgba(0,0,0,.3),
+              0 0 35px rgba(124,58,237,.12);
+}
+
+.plan-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.crown {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  font-size: 29px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  box-shadow: 0 0 25px #7c3aed55;
+}
+
+.plan-heading h2 { margin: 0 0 7px; }
+.plan-heading p { margin: 0; color: var(--muted); }
+
+.plan-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 20px;
+  border: 1px solid #ffffff13;
+  border-radius: 18px;
+  background: #ffffff08;
+  margin-bottom: 25px;
+}
+
+.plan-summary h3 { margin: 0 0 8px; font-size: 23px; }
+.plan-summary p { margin: 0; color: var(--muted); }
+
+.price {
+  font-size: 30px;
+  font-weight: 900;
+  color: #67e8f9;
+  white-space: nowrap;
+}
+
+.timer-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 18px;
+  margin-bottom: 25px;
+  border: 1px solid #6366f1;
+  border-radius: 18px;
+  background: #312e811c;
+}
+
+.timer-icon { font-size: 34px; }
+
+.timer-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.timer {
+  font-size: clamp(30px, 6vw, 42px);
+  line-height: 1.3;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 18px #22d3ee55;
+}
+
+.timer.urgent {
+  color: #fb7185;
+  text-shadow: 0 0 18px #fb718555;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: .75; }
+  to { opacity: 1; }
+}
+
+.payment-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: 24px;
+  padding: 22px;
+  border: 1px solid #ffffff20;
+  border-radius: 20px;
+  background: #02081755;
+}
+
+.qr-box {
+  min-height: 200px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 15px;
+  background: white;
+  color: #111827;
+  overflow: hidden;
+}
+
+#qr canvas, #qr img {
+  max-width: 100%;
+  height: auto !important;
+}
+
+.qr-caption { font-size: 12px; font-weight: 700; }
+
+.payment-details h3 { margin: 0 0 10px; font-size: 23px; }
+.payment-details > p { color: var(--muted); line-height: 1.7; }
+
+.upi-info {
+  padding: 14px;
+  margin: 15px 0;
+  border-radius: 12px;
+  background: #312e8155;
+  border: 1px solid #6366f166;
+  overflow-wrap: anywhere;
+}
+
+.upi-info small { display: block; color: var(--muted); margin-bottom: 5px; }
+
+.pay-btn, .submit-btn, .back-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 51px;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 13px;
+  color: white !important;
+  font-weight: 800;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s, filter .2s;
+}
+
+.pay-btn {
+  background: linear-gradient(100deg, #6d28d9, #c026d3);
+  box-shadow: 0 8px 25px #9333ea35;
+}
+
+.submit-btn {
+  background: linear-gradient(100deg, #059669, #06b6d4);
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+.back-btn {
+  background: linear-gradient(100deg, #4338ca, #9333ea);
+  margin-top: 12px;
+}
+
+.pay-btn:hover, .submit-btn:hover, .back-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.12);
+  box-shadow: 0 10px 30px #6366f155;
+}
+
+.utr-section { margin-top: 25px; }
+
+.utr-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.utr-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px;
+  border: 1px solid #6475a8;
+  border-radius: 12px;
+  background: #0b1533;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.utr-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px #22d3ee20;
+}
+
+.utr-input::placeholder { color: #8393b9; }
+
+.help-text { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+.notice {
+  padding: 16px;
+  margin-top: 20px;
+  border: 1px solid #6475a855;
+  border-radius: 14px;
+  background: #ffffff08;
+  color: #dbeafe;
+  line-height: 1.7;
+}
+
+.expired-box {
+  text-align: center;
+  padding: 28px 12px;
+}
+
+.expired-box .expired-icon { font-size: 50px; }
+.expired-box h2 { color: #fda4af; }
+
+.pay-footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 22px 10px 4px;
+}
+
+@media (max-width: 650px) {
+  .payment-grid { grid-template-columns: 1fr; padding: 14px; }
+  .qr-box { min-height: 190px; }
+  .plan-heading { align-items: flex-start; }
+  .timer-panel { justify-content: flex-start; }
+}
+</style>
+
+<div class="pay-page">
+
+  <header class="pay-hero">
+    <div class="eyebrow">✦ HIREHUB PREMIUM ✦</div>
+    <h1>Upgrade to Premium</h1>
+    <p>Unlock more opportunities. Take the next step in your career.</p>
+  </header>
+
+  <section class="pay-card">
+
+    <div class="plan-heading">
+      <div class="crown">👑</div>
+      <div>
+        <h2>Premium Plan</h2>
+        <p>Your next career opportunity starts here.</p>
+      </div>
+    </div>
+
+    {% if o.status == 'pending' %}
+
+    <div class="plan-summary">
+      <div>
+        <h3>{{ PLANS[o.plan][0] }}</h3>
+        <p>✦ Premium job access</p>
+      </div>
+      <div class="price">₹{{ o.amount }}</div>
+    </div>
+
+    <div class="timer-panel">
+      <div class="timer-icon">◷</div>
+      <div>
+        <div class="timer-label">Complete payment within</div>
+        <div class="timer" id="t" data-s="{{ secs }}">08:00</div>
+      </div>
+    </div>
+
+    <div id="expired-message" class="notice" hidden>
+      <div class="expired-box">
+        <div class="expired-icon">⌛</div>
+        <h2>Payment time expired</h2>
+        <p>Your payment window has ended. Please choose a plan again to start a new payment order.</p>
+        <a class="back-btn" href="{{ url_for('pricing') }}">Choose a plan again</a>
+      </div>
+    </div>
+
+    <div id="payment-content">
+      <div class="payment-grid">
+
+        <div class="qr-box">
+          <div id="qr"></div>
+          <div class="qr-caption">SCAN WITH ANY UPI APP</div>
+        </div>
+
+        <div class="payment-details">
+          <h3>Scan &amp; Pay</h3>
+          <p>Pay using your preferred UPI app, such as Google Pay, PhonePe, Paytm or BHIM.</p>
+
+          <div class="upi-info">
+            <small>UPI PAYMENT</small>
+            <strong>Pay exactly ₹{{ o.amount }}</strong>
+          </div>
+
+          <a class="pay-btn" href="{{ upi }}">▣ &nbsp; Pay with UPI app ↗</a>
+        </div>
+
+      </div>
+
+      <div class="notice">
+        <strong>ⓘ Payment instructions</strong><br>
+        Pay exactly ₹{{ o.amount }}. After payment, enter the 12-digit UTR number shown in your payment app.
+      </div>
+
+      <form method="post" class="utr-section" id="utr-form">
+        <label for="utr">Transaction reference (UTR)</label>
+        <input
+          class="utr-input"
+          id="utr"
+          name="utr"
+          inputmode="numeric"
+          pattern="[0-9]{12}"
+          minlength="12"
+          maxlength="12"
+          placeholder="Enter your 12-digit UTR number"
+          autocomplete="off"
+          required
+        >
+        <p class="help-text">Enter the actual transaction reference. Do not submit a guessed number.</p>
+        <button class="submit-btn" type="submit">➤ &nbsp; I have paid</button>
+      </form>
+    </div>
+
+    {% elif o.status == 'submitted' %}
+
+      <div class="notice">
+        <h2>✓ Payment submitted</h2>
+        <p>Your UTR is {{ o.utr }}. Premium access starts after the administrator verifies your payment.</p>
+      </div>
+      <a class="back-btn" href="/">Back to jobs</a>
+
+    {% elif o.status == 'approved' %}
+
+      <div class="notice">
+        <h2>✓ Premium is active!</h2>
+        <p>Your payment has been approved. Enjoy your premium access.</p>
+      </div>
+      <a class="back-btn" href="/">Browse jobs</a>
+
+    {% else %}
+
+      <div class="expired-box">
+        <div class="expired-icon">⌛</div>
+        <h2>Payment order {{ o.status }}</h2>
+        <p>This order is no longer awaiting payment. Choose a plan to continue.</p>
+        <a class="back-btn" href="{{ url_for('pricing') }}">Choose a plan</a>
+      </div>
+
+    {% endif %}
+
+    <div class="pay-footer">
+      🔒 Keep your transaction details safe · Payments are verified before premium activation.
+    </div>
+
+  </section>
+</div>
+
+{% if o.status == 'pending' %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+(function () {
+  const timer = document.getElementById("t");
+  const paymentContent = document.getElementById("payment-content");
+  const expiredMessage = document.getElementById("expired-message");
+  const form = document.getElementById("utr-form");
+
+  // Uses the remaining seconds supplied by Flask.
+  // The backend must still enforce expiry when processing the form.
+  let remaining = Math.max(0, Number(timer.dataset.s) || 0);
+  let stopped = false;
+
+  function updateTimer() {
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+
+    timer.textContent =
+      String(minutes).padStart(2, "0") + ":" +
+      String(seconds).padStart(2, "0");
+
+    if (remaining <= 60) timer.classList.add("urgent");
+
+    if (remaining <= 0) {
+      timer.textContent = "00:00";
+      stopped = true;
+      paymentContent.hidden = true;
+      expiredMessage.hidden = false;
+      return;
+    }
+
+    remaining--;
+    setTimeout(updateTimer, 1000);
+  }
+
+  updateTimer();
+
+  // QR code uses the UPI payment link supplied by Flask.
+  if (window.QRCode) {
+    new QRCode(document.getElementById("qr"), {
+      text: {{ upi|tojson }},
+      width: 190,
+      height: 190,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  // Prevent submission after the browser countdown reaches zero.
+  form.addEventListener("submit", function (event) {
+    if (stopped || remaining <= 0) {
+      event.preventDefault();
+      paymentContent.hidden = true;
+      expiredMessage.hidden = false;
+    }
+  });
+})();
+</script>
+{% endif %}
+
+{% endblock %}

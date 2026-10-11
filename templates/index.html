@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% block content %}
+<section class="hero"><h1>Every fresher and experienced job in one dashboard</h1>
+<p>Openings gathered from {{ SOURCE_LIST|length }} career sites and job boards. Premium members get the direct apply links.</p>
+<div class="stats"><div><b>{{ total }}</b>Openings</div><div><b>{{ sources|length }}</b>Active sources</div><div><b>₹139</b>Premium from</div></div>
+<a class="btn" href="{{ url_for('pricing') }}">See premium plans</a>
+<form class="filters" method="get"><input name="q" value="{{ q }}" placeholder="Search role, company or city">
+<select name="level">
+  <option value="All levels" {{ 'selected' if level == 'All levels' else '' }}>All levels</option>
+  <option value="Fresher" {{ 'selected' if level == 'Fresher' else '' }}>Fresher</option>
+  <option value="Experienced" {{ 'selected' if level == 'Experienced' else '' }}>Experienced</option>
+</select>
+<select name="source">
+    <option value="All sources" {{ 'selected' if source == 'All sources' else '' }}>All sources</option>
+    {% for s in sources %}
+        <option value="{{ s }}" {{ 'selected' if source == s else '' }}>{{ s }}</option>
+    {% endfor %}
+</select>
+
+<button class="btn" type="submit">Search</button>
+</form>
+<div class="grid">{% for j in jobs %}<article class="card"><div class="row"><span class="tag">{{ j.level }}</span>{% if j.sample %}<span class="tag demo">Demo</span>{% endif %}</div>
+<h3>{{ j.title }}</h3><p class="muted">{{ j.company }}, {{ j.location or 'Location not listed' }}</p>
+<p class="sal">{% if j.salary_month %}₹{{ "{:,.0f}".format(j.salary_month|float) }}<small> per month</small>{% else %}<small>Salary not disclosed</small>{% endif %}</p>
+<div class="row"><span class="muted">{{ j.source }}</span>{% if me and me.premium %}<a class="btn sm" href="{{ j.url }}" target="_blank" rel="noopener nofollow">Apply</a>{% else %}<a class="btn sm ghost" href="/pricing">Unlock apply link</a>{% endif %}</div></article>
+{% else %}<p class="muted">No jobs match. Admins can add jobs or press Sync in the admin panel.</p>{% endfor %}</div>
+<h2>Where we look</h2><div class="chips">{% for n,u in SOURCE_LIST %}<a href="{{ u }}" target="_blank" rel="noopener">{{ n }}</a>{% endfor %}</div>
+<h2>Member reviews</h2><div class="grid">{% for r in reviews %}<div class="card"><div class="who">{% if r.photo %}<img src="{{ r.photo }}" alt="{{ r.name }}">{% else %}<i>{{ r.name[0] }}</i>{% endif %}<b>{{ r.name }}</b></div><p>{{ r.text }}</p></div>
+{% else %}<p class="muted">Reviews from verified premium members appear here once they are approved.</p>{% endfor %}</div>
+{% if me and me.premium %}<form class="filters" method="post" action="/review"><input name="text" maxlength="400" placeholder="Share your experience" required><input name="photo" placeholder="Photo link (optional, https)"><button class="btn">Submit review</button></form>{% endif %}
+{% endblock %}

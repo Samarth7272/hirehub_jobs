@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}HireHub: jobs for freshers and experienced developers{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body>
+<div class="blob b1"></div><div class="blob b2"></div>
+<nav><a class="logo" href="/">Hire<span>Hub</span></a><div><a href="/">Jobs</a><a href="/pricing">Premium</a>
+{% if me %}{% if me.is_admin %}<a href="/admin">Admin</a>{% endif %}<span class="pill">{{ 'Premium' if me.premium else 'Free' }}</span><a href="/logout">Log out</a>
+{% else %}<a href="/login">Log in</a><a class="btn sm" href="/register">Sign up</a>{% endif %}</div></nav>
+{% for x in get_flashed_messages() %}<div class="flash">{{ x }}</div>{% endfor %}
+<main>{% block content %}{% endblock %}</main>
+<footer>Listings link to the original career sites. Payments are verified manually by the site owner.</footer></body></html>

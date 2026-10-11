@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card auth">
+  <h2>{{ 'Create your account' if mode=='register' else 'Welcome back' }}</h2>
+
+  <a href="{{ url_for('google_login') }}" class="google-btn">
+    <span class="google-icon">G</span>
+    Continue with Google
+  </a>
+
+  <div class="auth-divider">OR</div>
+
+  <form method="post">
+    {% if mode=='register' %}
+      <input name="name" placeholder="Your name" required>
+    {% endif %}
+    <input name="email" type="email" placeholder="Email" required>
+    <input name="password" type="password" placeholder="Password (8+ characters)" required>
+    <button class="btn">
+      {{ 'Sign up' if mode=='register' else 'Log in' }}
+    </button>
+  </form>
+
+  <p class="muted">
+    {% if mode=='register' %}
+      Already registered? <a href="/login">Log in</a>
+    {% else %}
+      New here? <a href="/register">Create an account</a>
+    {% endif %}
+  </p>
+</section>
+{% endblock %}
